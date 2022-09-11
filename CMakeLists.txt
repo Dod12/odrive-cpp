@@ -3,4 +3,6 @@ project(odrive_cpp)
 
 set(CMAKE_CXX_STANDARD 17)
 
+add_subdirectory(extern/fibre)
+
 add_library(odrive_cpp src/library.cpp)
