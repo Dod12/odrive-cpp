@@ -1,0 +1,21 @@
+# Build libfibre for USB connections to the ODrive
+add_custom_target(libfibre-build)
+add_custom_command(TARGET libfibre-build PRE_BUILD
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/extern/fibre/
+        #COMMAND tup generate build-script.sh
+        COMMAND ./script.sh)
+
+add_library(libfibre SHARED extern/fibre/fibre.cpp extern/fibre/channel_discoverer.cpp extern/fibre/platform_support/libusb_backend.cpp extern/fibre/legacy_object_client.cpp extern/fibre/legacy_protocol.cpp  extern/fibre/connection.cpp extern/fibre/endpoint_connection.cpp extern/fibre/multiplexer.cpp extern/fibre/func_utils.cpp extern/fibre/platform_support/epoll_event_loop.cpp extern/fibre/platform_support/socket_can.cpp extern/fibre/platform_support/can_adapter.cpp extern/fibre/platform_support/posix_tcp_backend.cpp extern/fibre/platform_support/posix_socket.cpp extern/fibre/platform_support/usb_host_adapter.cpp extern/fibre/platform_support/webusb_backend.cpp extern/fibre/libfibre.cpp)
+target_include_directories(libfibre PUBLIC extern/fibre/include extern/fibre)
+target_sources(libfibre PUBLIC extern/fibre/include/fibre/libfibre.h)
+target_compile_options(libfibre PRIVATE -fPIC -std=c++17 -DFIBRE_COMPILE -Os -Wno-everything -g)
+find_path(LIBUSB_INCLUDE_DIR
+        PATHS /usr/local
+        NAMES libusb.h
+        PATH_SUFFIXES "include" "libusb" "libusb-1.0")
+find_library(LIBUSB_LIBRARY
+        PATHS /usr/local
+        NAMES libusb-1.0.0.dylib
+        PATH_SUFFIXES "lib" "lib32" "lib64")
+target_include_directories(libfibre PRIVATE ${LIBUSB_INCLUDE_DIR})
+target_link_libraries(libfibre PRIVATE SYSTEM ${LIBUSB_LIBRARY})
