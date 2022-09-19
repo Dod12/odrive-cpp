@@ -10,21 +10,19 @@
 #include <odrive_usb.hpp>
 #include <odrive_endpoints.hpp>
 
-#define RETURN_STATUS(status) {int ret = status; if (ret != 0) std::cout << "Motor Error" << std::endl;}
-
 enum Status {
     STATUS_OK = 0,
     STATUS_ERROR = 1
 };
 
 struct Motor{
-    double vbus_voltage, position, velocity, effort, fet_temperature, motor_temperature = 0;
-    int axis_errors, motor_errrors, encoder_errors, controller_errors = 0;
+    double vbus_voltage = 0, position = 0, velocity = 0, effort = 0, fet_temperature = 0, motor_temperature = 0;
+    int axis_errors = 0, motor_errors = 0, encoder_errors = 0, controller_errors = 0;
     int64_t serial_number;
     int16_t axis_offset;
     float torque_constant;
 
-    Motor(int64_t serial_number, int16_t axis_offset, float torque_constant) {};
+    Motor(int64_t serial_number, int16_t axis_offset, float torque_constant) {this->serial_number = serial_number; this->axis_offset = axis_offset; this->torque_constant = torque_constant;};
 };
 
 class MotorController {
@@ -34,10 +32,10 @@ public:
     explicit MotorController(const T& serial_numbers, double sampling_rate = 40);
     template <typename T, typename ... Ts>
     explicit MotorController(Ts ...serial_number, double sampling_rate) : MotorController(std::vector<T>{serial_number...}, sampling_rate) {};
-    ~MotorController() = default;
+    ~MotorController();
 
 protected:
-    void sensor_poller(int sleep_millis);
+    [[noreturn]] void sensor_poller(int sleep_millis);
 
 private:
     template <typename T>
@@ -45,8 +43,14 @@ private:
     template <typename T>
     Status write_usb(int64_t& serial_number, int16_t& endpoint, T& value);
 
-    std::shared_ptr<odrive::ODriveUSB> usb_device;
+    std::unique_ptr<odrive::ODriveUSB> usb_device;
+
     bool run_poller = true;
+    std::mutex poller_mutex;
+    std::thread poller_thread;
+
+    bool get_poller() { poller_mutex.lock(); bool result = run_poller; poller_mutex.unlock(); return result; }
+    void set_poller(bool value) { poller_mutex.lock(); run_poller = value; poller_mutex.unlock(); }
 
     Motor left, right;
 };
