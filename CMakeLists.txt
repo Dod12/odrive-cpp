@@ -16,3 +16,4 @@ target_include_directories(odrive_lib PUBLIC include)
 target_include_directories(odrive_lib PRIVATE src)
 
 target_link_libraries(odrive_lib PUBLIC odrive_usb)
+target_include_directories(odrive_lib PUBLIC odrive_usb)
