@@ -1,6 +1,0 @@
-/Users/slappenrobotfri/Documents/GitHub/odrive-cpp/CMakeFiles/odrive_lib.dir
-/Users/slappenrobotfri/Documents/GitHub/odrive-cpp/CMakeFiles/edit_cache.dir
-/Users/slappenrobotfri/Documents/GitHub/odrive-cpp/CMakeFiles/rebuild_cache.dir
-/Users/slappenrobotfri/Documents/GitHub/odrive-cpp/extern/CMakeFiles/odrive_usb.dir
-/Users/slappenrobotfri/Documents/GitHub/odrive-cpp/extern/CMakeFiles/edit_cache.dir
-/Users/slappenrobotfri/Documents/GitHub/odrive-cpp/extern/CMakeFiles/rebuild_cache.dir
