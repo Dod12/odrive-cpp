@@ -1,4 +1,7 @@
 .idea
 cmake-*/
 *.dylib
+*.a
+*.la
+*.so
 CMakeFiles/
