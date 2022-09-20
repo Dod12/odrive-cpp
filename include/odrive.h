@@ -1,5 +1,5 @@
 #pragma once
-#include <odrive_endpoints.hpp>
+#include <odrive_usb.hpp>
 
 enum ReturnStatus {
     STATUS_OK = 0,
@@ -26,6 +26,7 @@ namespace test {
     
     class Axis {
     public:
+        explicit Axis() = default;
         Axis(const int serial_number, const int axis_offset);
         ~Axis() = default;
 
@@ -46,9 +47,10 @@ namespace test {
     class ODrive {
     public:
         explicit ODrive() = default;
-        explicit ODrive(int serial_number);
+        explicit ODrive(int serial_number, odrive::ODriveUSB* driver_ptr);
 
         Axis left, right;
-        ODrive::ODriveUSB* device_ptr;
-    }
+        odrive::ODriveUSB* driver_ptr;
+        int serial_number;
+    };
 }
