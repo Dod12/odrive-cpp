@@ -1,4 +1,5 @@
 #pragma once
+
 #include <odrive_usb.hpp>
 
 enum ReturnStatus {
