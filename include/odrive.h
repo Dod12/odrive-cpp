@@ -36,7 +36,7 @@ namespace test {
     
     class Axis {
     public:
-        Axis(const int serial_number, const int axis_offset, odrive::ODriveUSB& driver);
+        Axis(const int serial_number, const int axis_offset, std::shared_ptr<odrive::ODriveUSB> driver);
         ~Axis() = default;
 
         template <typename T>
@@ -50,7 +50,7 @@ namespace test {
     private:
         int serial_number;
         int axis_offset;
-        odrive::ODriveUSB& driver;
+        std::shared_ptr<odrive::ODriveUSB> driver;
 
     };
 

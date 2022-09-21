@@ -2,9 +2,10 @@
 cmake_minimum_required(VERSION 3.22)
 set(CMAKE_CXX_STANDARD 17)
 project(odrive-lib VERSION 1.0.0 DESCRIPTION "Simple C++ library for interacting with ODrive controller." LANGUAGES CXX)
+set(CMAKE_INSTALL_RPATH "./build")
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 add_subdirectory(extern)
-
 
 add_library(odrive_lib SHARED src/odrive.cpp extern/src/odrive_usb.cpp)
 set_target_properties(odrive_lib PROPERTIES VERSION ${PROJECT_VERSION})
@@ -17,3 +18,8 @@ target_include_directories(odrive_lib PRIVATE src)
 
 target_link_libraries(odrive_lib PUBLIC odrive_usb)
 target_include_directories(odrive_lib PUBLIC odrive_usb)
+
+add_executable(odrive_test test/main.cpp)
+target_link_libraries(odrive_test PRIVATE odrive_usb )
+target_link_libraries(odrive_test PRIVATE ${LIBUSB_LIBRARY})
+
