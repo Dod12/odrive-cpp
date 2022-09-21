@@ -2,7 +2,16 @@
 
 using namespace test;
 
-ODrive::ODrive(const int serial_number, odrive::ODriveUSB* driver_ptr) {
+ODrive::ODrive(const int serial_number) {
     this->serial_number = serial_number;
-    this->driver_ptr = driver_ptr;
+
+    driver = odrive::ODriveUSB();
+    driver.init(std::vector<std::vector<int64_t>>{NULL, std::vector<int64_t>{serial_number}});
+
+    this->left = Axis(serial_number, 0, driver);
+    this->right = Axis(serial_number, odrive::per_axis_offset, driver);
+}
+
+Axis::Axis(const int serial_number, const int axis_offset, odrive::ODriveUSB& driver) {
+    
 }
