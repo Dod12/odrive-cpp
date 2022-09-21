@@ -2,8 +2,6 @@
 cmake_minimum_required(VERSION 3.22)
 set(CMAKE_CXX_STANDARD 17)
 project(odrive-lib VERSION 1.0.0 DESCRIPTION "Simple C++ library for interacting with ODrive controller." LANGUAGES CXX)
-set(CMAKE_INSTALL_RPATH "./build")
-set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 add_subdirectory(extern)
 
