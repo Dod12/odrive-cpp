@@ -14,7 +14,7 @@ find_library(LIBUSB_LIBRARY
              PATH_SUFFIXES "libusb" "libusb-1.0")       
 
 
-add_library(odrive_usb SHARED src/odrive_usb.cpp)
+add_library(odrive_usb SHARED src/odrive_usb.cpp include/odrive_usb.hpp include/odrive_endpoints.hpp)
 set_target_properties(odrive_usb PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(odrive_usb PROPERTIES SOVERSION 1)
 

@@ -14,6 +14,15 @@ enum ControlMode {
     EFFORT = 2
 };
 
+enum InputMode {
+    
+};
+
+enum MotorType {
+    MOTOR_TYPE_HIGH_CURRENT = 0,
+    MOTOR_TYPE_GIMBAL = 2
+};
+
 namespace test {
     
     struct ODriveSensors {
@@ -27,8 +36,7 @@ namespace test {
     
     class Axis {
     public:
-        explicit Axis() = default;
-        Axis(const int serial_number, const int axis_offset);
+        Axis(const int serial_number, const int axis_offset, odrive::ODriveUSB& driver);
         ~Axis() = default;
 
         template <typename T>
@@ -42,16 +50,31 @@ namespace test {
     private:
         int serial_number;
         int axis_offset;
+        odrive::ODriveUSB& driver;
 
     };
 
     class ODrive {
     public:
-        explicit ODrive() = default;
-        explicit ODrive(int serial_number, odrive::ODriveUSB* driver_ptr);
+        explicit ODrive(int serial_number);
 
         Axis left, right;
-        odrive::ODriveUSB* driver_ptr;
+        odrive::ODriveUSB driver;
         int serial_number;
+
+        ReturnStatus set_current_limit(float value);
+        ReturnStatus set_velocity_limit(float value);
+        ReturnStatus set_has_brake_resistor(bool value);
+        ReturnStatus set_brake_resistance(float value);
+        ReturnStatus set_max_negative_current(float value);
+        ReturnStatus set_n_pole_pairs(float value);
+        ReturnStatus set_torque_constant(float value);
+        ReturnStatus set_motor_type(MotorType value);
+        ReturnStatus set_encoder_cpr(int value);
+        ReturnStatus calibrate();
+        ReturnStatus start_closed_loop_control();
+        ReturnStatus set_input_mode(InputMode vaue);
+        ReturnStatus set_control_mode(ControlMode value);
+        static const int a = odrive::AXIS__CONTROLLER__CONFIG__CONTROL_MODE;
     };
 }
