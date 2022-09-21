@@ -12,6 +12,8 @@ ODrive::ODrive(const int serial_number) {
     this->right = Axis(serial_number, odrive::per_axis_offset, driver);
 }
 
-Axis::Axis(const int serial_number, const int axis_offset, odrive::ODriveUSB& driver) {
-    
+Axis::Axis(const int serial_number, const int axis_offset, std::shared_ptr<odrive::ODriveUSB> driver) {
+    this->serial_number = serial_number;
+    this->axis_offset = axis_offset;
+    this->driver = driver;
 }
