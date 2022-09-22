@@ -12,4 +12,6 @@ int main(int argc, char* argv[]){
     
     float vbus_voltage;
     odrive.read(odrive::VBUS_VOLTAGE, vbus_voltage);
+    std::cout << "Vbus voltage: " << vbus_voltage << std::endl;
+    return 0;
 }
