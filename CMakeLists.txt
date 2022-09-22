@@ -10,7 +10,7 @@ set_target_properties(odrive_lib PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(odrive_lib PROPERTIES SOVERSION 1)
 
 set_target_properties(odrive_lib PROPERTIES PUBLIC_HEADER include/odrive.h)
-target_sources(odrive_lib INTERFACE include/odrive.h include/odrive_enums.h)
+target_sources(odrive_lib INTERFACE include/odrive.h include/odrive_enums.h include/odrive_endpoints.hpp)
 target_include_directories(odrive_lib PUBLIC include)
 target_include_directories(odrive_lib PRIVATE src)
 
