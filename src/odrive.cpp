@@ -13,7 +13,17 @@ ODrive::~ODrive() {
     libusb_release_interface(handle, 2);
     libusb_close(handle);
     libusb_exit(context);
-    delete device, handle, context;
+    if (device) {
+        delete device;
+    }
+
+    if (handle) {
+        delete handle;
+    }
+
+    if (context) {
+        delete context;
+    }
 }
 
 ReturnStatus ODrive::search_device(const int vendor_id, const int product_id) {
@@ -60,6 +70,7 @@ ReturnStatus ODrive::search_device(const int vendor_id, const int product_id) {
     libusb_get_device_descriptor(device, &descriptor);
     int serial_number = descriptor.iSerialNumber;
     printf("Serial number: %d\n", serial_number);
+    return ReturnStatus::STATUS_SUCCESS;
 }
 
 template <typename T>
@@ -68,9 +79,9 @@ ReturnStatus ODrive::write(short endpoint, const T& value) {
     request_payload.clear();
     response_payload.clear();
 
-    for (size_t i = 0; i < sizeof(value), ++i) {
+    for (size_t i = 0; i < sizeof(value); ++i) {
         request_payload.push_back(((unsigned char*)&value)[i]);
     }
 
-    return 
+    return ReturnStatus::STATUS_SUCCESS;
 }
