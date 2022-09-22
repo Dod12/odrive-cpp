@@ -2,8 +2,7 @@
 
 namespace odrive {
 
-ODrive::ODrive() {
-}
+ODrive::ODrive() = default;
 
 ODrive::ODrive(libusb_context *context) {
     this->context = context;
@@ -16,7 +15,7 @@ ODrive::~ODrive() {
     };
 
     if (context) {
-        libusb_exit(NULL);
+        libusb_exit(nullptr);
     }
 }
 
@@ -30,7 +29,7 @@ ReturnStatus ODrive::search_device(const int vendor_id, const int product_id) {
     printf("Opening device %04X:%04X...\n", vendor_id, product_id);
     handle = libusb_open_device_with_vid_pid(context, vendor_id, product_id);
 
-    if (handle == NULL) {
+    if (handle == nullptr) {
         fprintf(stderr, "Unable to open device %04X:%04X\n", vendor_id, product_id);
         libusb_exit(context);
         return STATUS_ERROR;
@@ -53,7 +52,7 @@ ReturnStatus ODrive::search_device(const int vendor_id, const int product_id) {
 
     device = libusb_get_device(handle);
 
-    if (device == NULL) {
+    if (device == nullptr) {
         fprintf(stderr, "Unable to get device\n");
         libusb_release_interface(handle, 2);
         libusb_close(handle);
@@ -61,46 +60,44 @@ ReturnStatus ODrive::search_device(const int vendor_id, const int product_id) {
         return STATUS_ERROR;
     }
 
-    libusb_device_descriptor descriptor;
+    libusb_device_descriptor descriptor{};
     libusb_get_device_descriptor(device, &descriptor);
     int serial_number = descriptor.iSerialNumber;
-    printf("Serial number: %d\n", serial_number);
+    printf("Found ODrive with serial number: %d\n", serial_number);
     return STATUS_SUCCESS;
 }
 
 template <typename T>
 ReturnStatus ODrive::read(short endpoint, T& value) {
+    bytes request_payload;
+    bytes response_payload;
 
-    request_payload.clear();
-    response_payload.clear();
+    if (transaction(endpoint, sizeof(value), request_payload, response_payload, true) != STATUS_SUCCESS) {return STATUS_ERROR;}
 
-    if (transaction(endpoint, sizeof(value), 1) != STATUS_SUCCESS) {return STATUS_ERROR;}
-
-    std::memcpy(&value, &response_payload, sizeof(value));
+    std::memcpy(&value, &response_payload[0], sizeof(value));
     return STATUS_SUCCESS;
 }
 
 template <typename T>
 ReturnStatus ODrive::write(short endpoint, const T& value) {
-
-    request_payload.clear();
-    response_payload.clear();
+    bytes request_payload;
+    bytes response_payload;
 
     for (size_t i = 0; i < sizeof(value); ++i) {
         request_payload.emplace_back(((unsigned char*)&value)[i]);
     }
 
-    return transaction(endpoint, 0, 1);
+    return transaction(endpoint, 0, request_payload, response_payload, true);
 }
 
 ReturnStatus ODrive::call(short endpoint) {
-    request_payload.clear();
-    response_payload.clear();
+    bytes request_payload;
+    bytes response_payload;
 
-    return transaction(endpoint, 0, 1);
+    return transaction(endpoint, 0, request_payload, response_payload, true);
 }
 
-ReturnStatus ODrive::transaction(short endpoint, short response_size, bool MSB) {
+ReturnStatus ODrive::transaction(short endpoint, short response_size, const bytes& request_payload, bytes& response_payload, bool MSB) {
 
     if (MSB) {
         endpoint |= 0x8000;

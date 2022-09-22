@@ -39,7 +39,7 @@ namespace odrive {
         explicit ODrive(libusb_context *context);
         ~ODrive();
 
-        ReturnStatus search_device(const int vendor_id = 0x1209, const int product_id = 0x0D32);
+        ReturnStatus search_device(int vendor_id = 0x1209, int product_id = 0x0D32);
 
         ReturnStatus configure_device(const ODriveConfig& config);
 
@@ -50,16 +50,15 @@ namespace odrive {
         ReturnStatus call(short endpoint);
 
     private:
-        libusb_context* context = NULL;
-        struct libusb_device_handle* handle = NULL;
-        libusb_device* device = NULL;
+        libusb_context* context = nullptr;
+        struct libusb_device_handle* handle = nullptr;
+        libusb_device* device = nullptr;
 
-        bytes request_payload, response_payload;
         short sequence_number = 0;
 
-        bytes encode(short sequence_number, short endpoint, short response_size, const bytes& request_payload);
-        bytes decode(const bytes& response_packet);
+        static bytes encode(short sequence_number, short endpoint, short response_size, const bytes& request_payload);
+        static bytes decode(const bytes& response_packet);
 
-        ReturnStatus transaction(short endpoint, short response_size, bool MSB);
+        ReturnStatus transaction(short endpoint, short response_size, const bytes& request_payload, bytes& response_payload, bool MSB);
     };
 }
