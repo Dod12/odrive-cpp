@@ -1,19 +1,76 @@
 #include "odrive.h"
 
-using namespace test;
+using namespace odrive;
 
-ODrive::ODrive(const int serial_number) {
-    this->serial_number = serial_number;
-
-    driver = odrive::ODriveUSB();
-    driver.init(std::vector<std::vector<int64_t>>{NULL, std::vector<int64_t>{serial_number}});
-
-    this->left = Axis(serial_number, 0, driver);
-    this->right = Axis(serial_number, odrive::per_axis_offset, driver);
+ODrive::ODrive() {
 }
 
-Axis::Axis(const int serial_number, const int axis_offset, std::shared_ptr<odrive::ODriveUSB> driver) {
-    this->serial_number = serial_number;
-    this->axis_offset = axis_offset;
-    this->driver = driver;
+ODrive::ODrive(libusb_context *context) {
+    this->context = context;
+}
+
+ODrive::~ODrive() {
+    libusb_release_interface(handle, 2);
+    libusb_close(handle);
+    libusb_exit(context);
+    delete device, handle, context;
+}
+
+ReturnStatus ODrive::search_device(const int vendor_id, const int product_id) {
+
+    if (libusb_init(&context) == LIBUSB_SUCCESS) {
+        fprintf(stdout, "Cannot initialize libusb\n");
+    }
+
+    printf("Opening device %04X:%04X...\n", vendor_id, product_id);
+    handle = libusb_open_device_with_vid_pid(context, vendor_id, product_id);
+
+    if (handle == NULL) {
+        fprintf(stderr, "Unable to open device %04X:%04X\n", vendor_id, product_id);
+        libusb_exit(context);
+        return ReturnStatus::STATUS_ERROR;
+    }
+
+    if (libusb_kernel_driver_active(handle, 2) != LIBUSB_SUCCESS  &&
+        libusb_detach_kernel_driver(handle, 2) != LIBUSB_SUCCESS) {
+        fprintf(stderr, "Cannot aquire driver\n");
+        libusb_close(handle);
+        libusb_exit(context);
+        return ReturnStatus::STATUS_ERROR;
+    }
+
+    if (libusb_claim_interface(handle, 2) != LIBUSB_SUCCESS) {
+        fprintf(stderr, "Cannot claim interface\n");
+        libusb_close(handle);
+        libusb_exit(context);
+        return ReturnStatus::STATUS_ERROR;
+    }
+
+    device = libusb_get_device(handle);
+
+    if (device == NULL) {
+        fprintf(stderr, "Unable to get device\n");
+        libusb_release_interface(handle, 2);
+        libusb_close(handle);
+        libusb_exit(context);
+        return ReturnStatus::STATUS_ERROR;
+    }
+
+    libusb_device_descriptor descriptor;
+    libusb_get_device_descriptor(device, &descriptor);
+    int serial_number = descriptor.iSerialNumber;
+    printf("Serial number: %d\n", serial_number);
+}
+
+template <typename T>
+ReturnStatus ODrive::write(short endpoint, const T& value) {
+
+    request_payload.clear();
+    response_payload.clear();
+
+    for (size_t i = 0; i < sizeof(value), ++i) {
+        request_payload.push_back(((unsigned char*)&value)[i]);
+    }
+
+    return 
 }
