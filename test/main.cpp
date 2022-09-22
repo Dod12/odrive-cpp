@@ -8,7 +8,7 @@
 
 int main(int argc, char* argv[]){
     auto odrive = odrive::ODrive();
-    if (odrive.search_device() != odrive::ReturnStatus::STATUS_ERROR) { fprintf(stderr, "Cannot find ODrive"); }
+    if (odrive.search_device() != odrive::ReturnStatus::STATUS_SUCCESS) { fprintf(stderr, "Cannot find ODrive"); }
     
     float vbus_voltage;
     odrive.read(odrive::VBUS_VOLTAGE, vbus_voltage);
