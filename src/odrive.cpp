@@ -10,25 +10,19 @@ ODrive::ODrive(libusb_context *context) {
 }
 
 ODrive::~ODrive() {
-    libusb_release_interface(handle, 2);
-    libusb_close(handle);
-    libusb_exit(context);
-    if (device) {
-        delete device;
-    }
-
     if (handle) {
-        delete handle;
-    }
+        libusb_release_interface(handle, 2);
+        libusb_close(handle);
+    };
 
     if (context) {
-        delete context;
+        libusb_exit(NULL);
     }
 }
 
 ReturnStatus ODrive::search_device(const int vendor_id, const int product_id) {
 
-    if (libusb_init(&context) == LIBUSB_SUCCESS) {
+    if (libusb_init(&context) != LIBUSB_SUCCESS) {
         fprintf(stdout, "Cannot initialize libusb\n");
     }
 

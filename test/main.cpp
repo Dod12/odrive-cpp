@@ -7,5 +7,5 @@
 
 int main(int argc, char* argv[]){
     auto odrive = odrive::ODrive();
-    odrive.search_device();
+    return odrive.search_device();
 }
