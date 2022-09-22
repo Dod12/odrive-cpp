@@ -4,8 +4,12 @@
 
 #include <iostream>
 #include <odrive.h>
+#include <odrive_endpoints.hpp>
 
 int main(int argc, char* argv[]){
     auto odrive = odrive::ODrive();
-    return odrive.search_device();
+    if (odrive.search_device() != odrive::ReturnStatus::STATUS_ERROR) { fprintf(stderr, "Cannot find ODrive"); }
+    
+    float vbus_voltage;
+    odrive.read(odrive::VBUS_VOLTAGE, vbus_voltage);
 }

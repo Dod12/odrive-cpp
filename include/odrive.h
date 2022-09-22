@@ -5,6 +5,17 @@
 #include <vector>
 #include <map>
 
+#include "odrive_endpoints.hpp"
+
+#define ODRIVE_USB_VENDORID 0x1209
+#define ODRIVE_USB_PRODUCTID 0x0d32
+
+#define ODRIVE_OUT_ENDPOINT 0x03
+#define ODRIVE_IN_ENDPOINT 0x83
+
+#define ODRIVE_PROTOCOL_VERSION 1
+#define ODRIVE_MAX_PACKET_SIZE 16
+
 namespace odrive {
 
     typedef std::vector<uint8_t> bytes;
@@ -44,10 +55,11 @@ namespace odrive {
         libusb_device* device = NULL;
 
         bytes request_payload, response_payload;
+        short sequence_number = 0;
 
-        ReturnStatus call_usb(short endpoint, short response_size, bool MSB);
+        bytes encode(short sequence_number, short endpoint, short response_size, const bytes& request_payload);
+        bytes decode(const bytes& response_packet);
 
-        bytes encode_packet();
-        bytes decode_packet();
+        ReturnStatus transaction(short endpoint, short response_size, bool MSB);
     };
 }
