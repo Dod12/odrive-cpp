@@ -1,11 +1,13 @@
 #pragma once
 
 #include <libusb.h>
-#include <stdio.h>
+#include <cstdio>
 #include <vector>
 #include <map>
+#include <string>
 
-#include "odrive_endpoints.hpp"
+#include "odrive_endpoints.h"
+#include "odrive_enums.h"
 
 #define ODRIVE_USB_VENDORID 0x1209
 #define ODRIVE_USB_PRODUCTID 0x0d32
@@ -25,23 +27,15 @@ namespace odrive {
         STATUS_ERROR = -1,
     };
 
-    enum Config {
-
-    };
-
-    struct ODriveConfig : std::map<Config, int> {
-
-    };
-
     class ODrive {
     public:
         ODrive();
         explicit ODrive(libusb_context *context);
         ~ODrive();
 
-        ReturnStatus search_device(int vendor_id = 0x1209, int product_id = 0x0D32);
+        ReturnStatus search_device(int vendor_id = ODRIVE_USB_VENDORID, int product_id = ODRIVE_USB_PRODUCTID);
 
-        ReturnStatus configure_device(const ODriveConfig& config);
+        // ReturnStatus configure_device(const ODriveConfig& config);
 
         template <typename T>
         ReturnStatus read(short endpoint, T& value);

@@ -37,7 +37,7 @@ ReturnStatus ODrive::search_device(const int vendor_id, const int product_id) {
 
     if (libusb_kernel_driver_active(handle, 2) != LIBUSB_SUCCESS  &&
         libusb_detach_kernel_driver(handle, 2) != LIBUSB_SUCCESS) {
-        fprintf(stderr, "Cannot aquire driver\n");
+        fprintf(stderr, "Cannot acquire driver\n");
         libusb_close(handle);
         libusb_exit(context);
         return STATUS_ERROR;
@@ -62,8 +62,12 @@ ReturnStatus ODrive::search_device(const int vendor_id, const int product_id) {
 
     libusb_device_descriptor descriptor{};
     libusb_get_device_descriptor(device, &descriptor);
-    int serial_number = descriptor.iSerialNumber;
-    printf("Found ODrive with serial number: %d\n", serial_number);
+    unsigned char serial_number[256];
+    memset(serial_number, 0, sizeof(serial_number));
+
+    if (libusb_get_string_descriptor_ascii(handle, descriptor.iSerialNumber, serial_number, sizeof(serial_number))
+        < 0) { fprintf(stderr, "Failed to get serial number\n"); return STATUS_ERROR; }
+    printf("Found ODrive with serial number: %s\n", serial_number);
     return STATUS_SUCCESS;
 }
 
@@ -103,7 +107,7 @@ ReturnStatus ODrive::transaction(short endpoint, short response_size, const byte
         endpoint |= 0x8000;
     }
     sequence_number = (sequence_number + 1) & 0x7fff;
-    sequence_number = LIBUSB_ENDPOINT_IN;
+    sequence_number |= LIBUSB_ENDPOINT_IN;
 
     bytes response_packet;
     bytes request_packet = encode(sequence_number, endpoint, response_size, request_payload);
@@ -142,7 +146,7 @@ bytes ODrive::encode(short sequence_number, short endpoint, short response_size,
         packet.emplace_back(b);
     }
 
-    short crc = ((endpoint & 0x7fff) == 0) ? ODRIVE_PROTOCOL_VERSION : json_crc;
+    short crc = ((endpoint & 0x7fff) == 0) ? ODRIVE_PROTOCOL_VERSION : odrive::endpoints::json_crc;
     packet.emplace_back((crc >> 0) & 0xFF);
     packet.emplace_back((crc >> 8) & 0xFF);
 
