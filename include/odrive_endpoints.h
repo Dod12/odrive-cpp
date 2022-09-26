@@ -10,7 +10,7 @@
 #define __ODRIVE_ENDPOINTS_HPP
 
 
-namespace odrive {
+namespace odrive::endpoints {
     
 static constexpr const uint16_t json_crc = 0xebfb;
 
@@ -878,6 +878,6 @@ template<> struct endpoint_type<AXIS__WATCHDOG_FEED> { typedef void type; };
 template<int I>
 using endpoint_type_t = typename endpoint_type<I>::type;
 
-}
+} // namespace odrive::endpoints
 
 #endif // __ODRIVE_ENDPOINTS_HPP
