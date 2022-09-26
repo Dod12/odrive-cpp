@@ -1,80 +1,58 @@
 #pragma once
 
-#include <odrive_usb.hpp>
+#include <libusb.h>
+#include <cstdio>
+#include <vector>
+#include <map>
+#include <string>
 
-enum ReturnStatus {
-    STATUS_OK = 0,
-    STATUS_ERROR = 1
-};
+#include "odrive_endpoints.h"
+#include "odrive_enums.h"
 
-enum ControlMode {
-    UNDEFINED = -1,
-    POSITION = 0,
-    VELOCITY = 1,
-    EFFORT = 2
-};
+#define ODRIVE_USB_VENDORID 0x1209
+#define ODRIVE_USB_PRODUCTID 0x0d32
 
-enum InputMode {
+#define ODRIVE_OUT_ENDPOINT 0x03
+#define ODRIVE_IN_ENDPOINT 0x83
+
+#define ODRIVE_PROTOCOL_VERSION 1
+#define ODRIVE_MAX_PACKET_SIZE 16
+
+namespace odrive {
+
+    typedef std::vector<uint8_t> bytes;
     
-};
-
-enum MotorType {
-    MOTOR_TYPE_HIGH_CURRENT = 0,
-    MOTOR_TYPE_GIMBAL = 2
-};
-
-namespace test {
-    
-    struct ODriveSensors {
-        float position, velocity, effort;
-        float vbus_voltage, fet_temperature, motor_temperature;
-        ControlMode control_mode = ControlMode::UNDEFINED;
-        float target_position, target_velocity, target_effort;
-        int serial_number, axis_offset;
-        float torque_constant;
-    };
-    
-    class Axis {
-    public:
-        Axis(const int serial_number, const int axis_offset, std::shared_ptr<odrive::ODriveUSB> driver);
-        ~Axis() = default;
-
-        template <typename T>
-        ReturnStatus configure(const int endpoint, const T value);
-
-        template <typename T>
-        ReturnStatus set_value(const int endpoint, const T value);
-
-        ODriveSensors get_sensor_readings();
-    
-    private:
-        int serial_number;
-        int axis_offset;
-        std::shared_ptr<odrive::ODriveUSB> driver;
-
+    enum ReturnStatus {
+        STATUS_SUCCESS = 0,
+        STATUS_ERROR = -1,
     };
 
     class ODrive {
     public:
-        explicit ODrive(int serial_number);
+        ODrive();
+        explicit ODrive(libusb_context *context);
+        ~ODrive();
 
-        Axis left, right;
-        odrive::ODriveUSB driver;
-        int serial_number;
+        ReturnStatus search_device(int vendor_id = ODRIVE_USB_VENDORID, int product_id = ODRIVE_USB_PRODUCTID);
 
-        ReturnStatus set_current_limit(float value);
-        ReturnStatus set_velocity_limit(float value);
-        ReturnStatus set_has_brake_resistor(bool value);
-        ReturnStatus set_brake_resistance(float value);
-        ReturnStatus set_max_negative_current(float value);
-        ReturnStatus set_n_pole_pairs(float value);
-        ReturnStatus set_torque_constant(float value);
-        ReturnStatus set_motor_type(MotorType value);
-        ReturnStatus set_encoder_cpr(int value);
-        ReturnStatus calibrate();
-        ReturnStatus start_closed_loop_control();
-        ReturnStatus set_input_mode(InputMode vaue);
-        ReturnStatus set_control_mode(ControlMode value);
-        static const int a = odrive::AXIS__CONTROLLER__CONFIG__CONTROL_MODE;
+        // ReturnStatus configure_device(const ODriveConfig& config);
+
+        template <typename T>
+        ReturnStatus read(short endpoint, T& value);
+        template <typename T>
+        ReturnStatus write(short endpoint, const T& value);
+        ReturnStatus call(short endpoint);
+
+    private:
+        libusb_context* context = nullptr;
+        struct libusb_device_handle* handle = nullptr;
+        libusb_device* device = nullptr;
+
+        short sequence_number = 0;
+
+        static bytes encode(short sequence_number, short endpoint, short response_size, const bytes& request_payload);
+        static bytes decode(const bytes& response_packet);
+
+        ReturnStatus transaction(short endpoint, short response_size, const bytes& request_payload, bytes& response_payload, bool MSB);
     };
 }
