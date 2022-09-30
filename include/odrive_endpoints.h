@@ -6,6 +6,8 @@
 * the ODrive will ignore all commands.
 */
 
+// This file is for the 5.3.0 firmware version and was retrieved from https://github.com/Factor-Robotics/odrive_ros2_control/blob/e38c14ce9868293b5206898d133c90d79f25521b/odrive_hardware_interface/include/odrive_hardware_interface/odrive_endpoints.hpp
+
 #ifndef __ODRIVE_ENDPOINTS_HPP
 #define __ODRIVE_ENDPOINTS_HPP
 

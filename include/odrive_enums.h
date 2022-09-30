@@ -7,6 +7,8 @@
 ** python Firmware/interface_generator_stub.py --definitions Firmware/odrive-interface.yaml --template tools/arduino_enums_template.j2 --output Arduino/ODriveArduino/ODriveEnums.h
 */
 
+// This file is for the 5.3.0 firmware version
+
 namespace odrive::enums {
 // ODrive.GpioMode
     enum GpioMode {

@@ -17,30 +17,3 @@ int main(int argc, char* argv[]){
     odrive.write(odrive::endpoints::AXIS__CONTROLLER__INPUT_POS, left_pos);
     return 0;
 }
-
-struct euclidean : public std::pair<float, float> {
-    euclidean(float x, float y) : std::pair<float, float>(x, y) {};
-    float x = first;
-    float y = second;
-};
-
-struct differential : public std::pair<float, float> {
-    differential(float left, float right) : std::pair<float, float>(left, right) {};
-    float left = first;
-    float right = second;
-};
-
-class DifferentialDrive {
-public:
-    DifferentialDrive(float wheel_base, float wheel_radius) {
-        this->wheel_base = wheel_base;
-        this->wheel_radius = wheel_radius;
-    };
-
-public:
-    float wheel_base, wheel_radius;
-
-    differential calculate_velocity(float v, float omega) {
-        return {(2 * v + omega * wheel_base ) / (2 * wheel_radius), (2 * v - omega * wheel_base ) / (2 * wheel_radius)};
-    }
-};
